@@ -3,7 +3,8 @@ import pygame, sys, math
 # pygame setup
 pygame.init()
 size = width, height = 1000, 700
-speed = [5,5]
+dx = 1
+dy = 0
 white = 255,255,255
 black = 0,0,0
 grey = 128,128,128
@@ -11,7 +12,10 @@ x, y = 100, 100
 radio = 20
 thickness = 20
 
-colision = pygame.Rect(0, 0, 40, 40)
+cuerpo = [(100, 50), (90, 50), (80, 50)]
+
+colision = pygame.Rect(100, 100, 40, 40)
+
 colision_center = (x, y)
 
 wallUp = pygame.Rect(0, 0, width, thickness)
@@ -31,13 +35,29 @@ while running:
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_LEFT]:
-        colision.x -= speed[0]
+        dx = -1
+        dy = 0
     if keys[pygame.K_RIGHT]:
-        colision.x += speed[0]
+        dx = 1
+        dy = 0
     if keys[pygame.K_UP]:
-        colision.y -= speed[1]
+        dy = -1
+        dx = 0
     if keys[pygame.K_DOWN]:
-        colision.y += speed[1]
+        dy = 1
+        dx = 0
+
+    colision = colision.move(dx, dy)
+
+    if colision.left < thickness or colision.right > (width - thickness):
+        dx = -dx
+        print("GAME OVER")
+        #running = False
+    if colision.top < thickness or colision.bottom > (height - thickness):
+        dy = -dy
+        print("GAME OVER")
+        #running = False
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -45,23 +65,17 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 print("Saliendo del juego......")
-                running = False
-
-        if colision.x < 0 or colision.x >= (width-thickness):
-            speed[0] = -speed[0]
-        if colision.top < 0 or colision.bottom >= (height-thickness):
-            speed[1] = -speed[1]
-
-            print("GAME OVER")
-            
+                running = False            
             
     screen.fill(black)
 
-    pygame.draw.circle(screen, white, colision.center, radio)
+    for parte in cuerpo:
+        pygame.draw.circle(screen, white, parte, radio)
+        
     pygame.draw.rect(screen, (255,0,0), colision, 2)
 
-    for x in wallScreen:
-        pygame.draw.rect(screen, grey, x)
+    for wall in wallScreen:
+        pygame.draw.rect(screen, grey, wall)
    
     pygame.display.flip()
 
